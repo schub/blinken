@@ -1,7 +1,7 @@
 #include <DmxSimple.h>
 
 #define ERROR_PIN 6
-#define ERROR_LED_BLINK_DURATION 50
+#define ERROR_LED_BLINK_DURATION 25
 #define DMX_PIN 3
 #define DMX_CHANNELS 12
 
@@ -33,6 +33,7 @@ void setup() {
   ** do this, DmxSimple will set the maximum channel number to the
   ** highest channel you DmxSimple.write() to. */
   DmxSimple.maxChannel(DMX_CHANNELS);
+
 }
 
 
@@ -76,9 +77,8 @@ void gotFullMidiData() {
     // note off
     playNote(midiNote, 0);
   } else {
-    errorLed(1000);
+    errorLed(500);
   }
-  
 }
 
 
@@ -94,9 +94,9 @@ void errorLed(int duration) {
   while (t < duration) {
     digitalWrite(ERROR_PIN, HIGH);
     delay(ERROR_LED_BLINK_DURATION);
-    t += ERROR_LED_BLINK_DURATION;
+    digitalWrite(ERROR_PIN, LOW);
+    delay(ERROR_LED_BLINK_DURATION);
+    t = t + (2 * ERROR_LED_BLINK_DURATION);
   }
 }
-
-
 
