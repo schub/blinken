@@ -4,6 +4,7 @@
 #define ERROR_LED_BLINK_DURATION 25
 #define DMX_PIN 3
 #define DMX_CHANNELS 12
+#define DMX_FADE_INTERVALL 10  // this means 1/4 sec fading
 
 
 byte incommingByte;
@@ -72,10 +73,10 @@ void gotFullMidiData() {
   
   if (midiStatus == 144) {
     // note on
-    playNote(midiNote, midiVelocity);
+    playNote(midiNote, 255);
   } else if (midiStatus == 128) {
     // note off
-    playNote(midiNote, 0);
+    playNoteWithFading(midiNote, 0);
   } else {
     errorLed(500);
   }
@@ -85,6 +86,27 @@ void gotFullMidiData() {
 /* send note to dmx */
 void playNote(byte note, byte velocity) {
   DmxSimple.write(note-59, velocity);
+}
+
+/* send note to dmx with fading */
+void playNoteWithFading(byte note, byte velocity) {
+  
+  // with fading
+  int brightness;  
+  
+  // fade in and out
+  if (velocity == 0) {
+    // fade out
+    for (brightness = 255; brightness > 0; brightness -= DMX_FADE_INTERVALL) {
+      DmxSimple.write(note-59, brightness); // Set DMX channel 1 to new value
+      delay(10); // Wait 10ms
+    }
+  } else {
+    for (brightness = 0; brightness <= 255; brightness += DMX_FADE_INTERVALL) {
+      DmxSimple.write(note-59, brightness); // Set DMX channel 1 to new value
+      delay(10); // Wait 10ms
+    }
+  }
 }
 
 
